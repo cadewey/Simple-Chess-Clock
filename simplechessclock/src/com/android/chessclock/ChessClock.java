@@ -29,11 +29,16 @@
 package com.android.chessclock;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
@@ -41,13 +46,98 @@ import android.widget.TextView;
 public class ChessClock extends Activity {
 	
 	public static final String TAG = "INFO";
+	public static final String V_MAJOR = "0";
+	public static final String V_MINOR = "3";
+	public static final String V_MINI = "0";
+
+	private static final int SETTINGS = 0;
+	private static final int RESET = 1;
+	private static final int ABOUT = 2;
 	
+	private Dialog dialog;
 	private long t_P1 = 600000;
 	private long t_P2 = 600000;
 	private int onTheClock = 0;
 	private int savedOTC = 0;
 	private boolean blink = false;
 	private Handler myHandler = new Handler();
+	
+    /** Called when the activity is first created. */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);    
+        
+        requestWindowFeature(Window.FEATURE_NO_TITLE);  
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,   
+        						WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        
+        setContentView(R.layout.main);
+        
+        SetUpGame();
+        
+    }
+    
+    public boolean onPrepareOptionsMenu(Menu menu) {
+    	PauseGame();
+    	return true;
+    }
+	
+	public boolean onCreateOptionsMenu(Menu menu) {
+		menu.add(0, SETTINGS, 0, "Settings").setIcon(R.drawable.settings);
+		menu.add(0, RESET, 0, "Reset Clocks").setIcon(R.drawable.refresh);
+		menu.add(0, ABOUT, 0, "About").setIcon(R.drawable.about);
+		
+		return true;
+	}
+	
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch( item.getItemId() ) {
+			case SETTINGS:
+				Settings();
+				return true;
+			case RESET:
+				Reset();
+				return true;
+			case ABOUT:
+				About();
+				return true;
+		}
+		
+		return false;
+	}
+	
+	private void Settings() {
+
+	}
+	
+	private void Reset() {
+		
+	}
+	
+	private void About() {
+		showDialog(1);
+		
+	}
+	
+	protected Dialog onCreateDialog(int id) {
+		dialog = new Dialog(this);
+
+		dialog.setContentView(R.layout.about_dialog);
+		dialog.setTitle("Simple Chess Clock (SCC) v"
+				+ V_MAJOR + "."
+				+ V_MINOR + "."
+				+ V_MINI);
+
+		TextView text = (TextView) dialog.findViewById(R.id.text);
+		text.setText("Design/Coding: Carter Dewey\n"
+				+ "Copyright (c) Carter Dewey, 2010\n\n"
+				+ "SCC is free software licensed under the "
+				+ "GNU GPLv3.\n\n"
+				+ "To report bugs, please visit:\n"
+				+ "http://code.google.com/p/simplechessclock/");
+		
+		return dialog;
+	}
 	
 	public OnClickListener P1ClickHandler = new OnClickListener() {
 		public void onClick(View v) {
@@ -73,7 +163,6 @@ public class ChessClock extends Activity {
 		myHandler.removeCallbacks(mUpdateTimeTask);
 		myHandler.removeCallbacks(mUpdateTimeTask2);
 		myHandler.postDelayed(mUpdateTimeTask, 100);
-		Log.v(TAG, "Made handler.");
 	}
 
 		
@@ -176,7 +265,6 @@ public class ChessClock extends Activity {
 		myHandler.removeCallbacks(mUpdateTimeTask);
 		myHandler.removeCallbacks(mUpdateTimeTask2);
 		myHandler.postDelayed(mUpdateTimeTask2, 100);
-		Log.v(TAG, "Made handler (P2).");
 	}
 
 				
@@ -224,43 +312,57 @@ public class ChessClock extends Activity {
 	
 	public OnClickListener PauseListener = new OnClickListener() {
 		public void onClick(View v) {
-			
-			Button p1 = (Button)findViewById(R.id.Player1);
-			Button p2 = (Button)findViewById(R.id.Player2);
-			Button pp = (Button)findViewById(R.id.Pause);
-			
-			if ( onTheClock != 0 ) {
-				Log.v(TAG, "Info: Pausing.");
-				savedOTC = onTheClock;
-				onTheClock = 0;
-				
-				p1.setBackgroundColor(Color.LTGRAY);
-				p2.setBackgroundColor(Color.LTGRAY);
-				pp.setBackgroundColor(Color.BLUE);
-			
-				myHandler.removeCallbacks(mUpdateTimeTask);
-				myHandler.removeCallbacks(mUpdateTimeTask2);
-			} else {
-				Log.v(TAG, "Info: Unpausing.");
-				if ( savedOTC == 1 ) {
-					P1Click();
-				} else if ( savedOTC == 2 ) {
-					P2Click();
-				} else {
-					return;
-				}
-			}
+			PauseToggle();
 		}
 	};
 	
-    /** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);    
-        
-        setContentView(R.layout.main);
-        
-        TextView p1 = (TextView)findViewById(R.id.t_Player1);
+	private void PauseGame() {
+		Button p1 = (Button)findViewById(R.id.Player1);
+		Button p2 = (Button)findViewById(R.id.Player2);
+		Button pp = (Button)findViewById(R.id.Pause);
+		
+		if ( onTheClock != 0 ) {
+			savedOTC = onTheClock;
+			onTheClock = 0;
+			
+			p1.setBackgroundColor(Color.LTGRAY);
+			p2.setBackgroundColor(Color.LTGRAY);
+			pp.setBackgroundColor(Color.BLUE);
+		
+			myHandler.removeCallbacks(mUpdateTimeTask);
+			myHandler.removeCallbacks(mUpdateTimeTask2);
+		}
+	}
+	
+	private void PauseToggle() {
+		Button p1 = (Button)findViewById(R.id.Player1);
+		Button p2 = (Button)findViewById(R.id.Player2);
+		Button pp = (Button)findViewById(R.id.Pause);
+		
+		if ( onTheClock != 0 ) {
+			savedOTC = onTheClock;
+			onTheClock = 0;
+			
+			p1.setBackgroundColor(Color.LTGRAY);
+			p2.setBackgroundColor(Color.LTGRAY);
+			pp.setBackgroundColor(Color.BLUE);
+		
+			myHandler.removeCallbacks(mUpdateTimeTask);
+			myHandler.removeCallbacks(mUpdateTimeTask2);
+		} else {
+			Log.v(TAG, "Info: Unpausing.");
+			if ( savedOTC == 1 ) {
+				P1Click();
+			} else if ( savedOTC == 2 ) {
+				P2Click();
+			} else {
+				return;
+			}
+		}
+	}
+	
+	private void SetUpGame() {
+		TextView p1 = (TextView)findViewById(R.id.t_Player1);
         TextView p2 = (TextView)findViewById(R.id.t_Player2);
         
         Button p1_button = (Button)findViewById(R.id.Player1);
@@ -298,8 +400,6 @@ public class ChessClock extends Activity {
         p2_button.setOnClickListener(P2ClickHandler);
         pause.setOnClickListener(PauseListener);
         
-        Log.v(TAG, "Info: End of onCreate");
-        
-    }
+	}
 }
     

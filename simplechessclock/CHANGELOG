@@ -1,6 +1,23 @@
-* v0.1.1 (6/25/2010)
++------ Simple Chess Clock Change Log ------+
+
+
+* v0.3.0 (6/26/2010)
+-Added options menu and options menu icons.
+-Added 'About' dialog from options menu.
+-Opening the options menu/pressing the menu
+button now pauses the game.
+-Made application fullscreen.
+-Refactored various portions of the code into
+smaller functions.
+
+* v0.2.0 (6/25/2010)
+-Added visual notification for time expiration.
+-Added visual warning when time is one minute
+or less.
+
+* v0.1.1 (6/24/2010)
 -Fixed bug that caused the display to break when
 it tried to rotate to landscape orientation.
 
-* v0.1 (6/24/2010)
+* v0.1.0 (6/23/2010)
 -Initial release. Basic functionality in place.
