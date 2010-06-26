@@ -1,0 +1,6 @@
+* v0.1.1 (6/25/2010)
+-Fixed bug that caused the display to break when
+it tried to rotate to landscape orientation.
+
+* v0.1 (6/24/2010)
+-Initial release. Basic functionality in place.

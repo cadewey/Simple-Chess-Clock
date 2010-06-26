@@ -46,6 +46,7 @@ public class ChessClock extends Activity {
 	private long t_P2 = 600000;
 	private int onTheClock = 0;
 	private int savedOTC = 0;
+	private boolean blink = false;
 	private Handler myHandler = new Handler();
 	
 	public OnClickListener P1ClickHandler = new OnClickListener() {
@@ -86,7 +87,29 @@ public class ChessClock extends Activity {
 			secondsLeft     = secondsLeft % 60;
 			       
 			TextView p1 = (TextView)findViewById(R.id.t_Player1);
-			       		       
+			
+			if ( timeLeft == 0 ) {
+				Button b1 = (Button)findViewById(R.id.Player1);
+				Button b2 = (Button)findViewById(R.id.Player2);
+				Button pp = (Button)findViewById(R.id.Pause);
+				
+				p1.setTextColor(Color.RED);
+				b2.setBackgroundColor(Color.RED);
+				
+				b1.setClickable(false);
+				b2.setClickable(false);
+				pp.setClickable(false);
+				
+				myHandler.removeCallbacks(mUpdateTimeTask2);
+				myHandler.postDelayed(Blink, 500);
+				return;
+				
+			}
+			       		
+			if ( timeLeft <= 60000 ) {
+				p1.setTextColor(Color.YELLOW);
+			}
+			
 			if (secondsLeft < 10) {
 			    p1.setText("" + minutesLeft + ":0" + secondsLeft);
 			} else {
@@ -100,6 +123,38 @@ public class ChessClock extends Activity {
 	public OnClickListener P2ClickHandler = new OnClickListener() {
 		public void onClick(View v) {
 			P2Click();
+		}
+	};
+	
+	private Runnable Blink = new Runnable() {
+		public void run() {
+			TextView p1 = (TextView)findViewById(R.id.t_Player1);
+			
+			if ( !blink ) {
+				blink = true;
+				p1.setText("");
+			} else {
+				blink = false;
+				p1.setText("0:00");
+			}
+			
+			myHandler.postDelayed(this, 500);	
+		}
+	};
+	
+	private Runnable Blink2 = new Runnable() {
+		public void run() {
+			TextView p2 = (TextView)findViewById(R.id.t_Player2);
+			
+			if ( !blink ) {
+				blink = true;
+				p2.setText("");
+			} else {
+				blink = false;
+				p2.setText("0:00");
+			}
+			
+			myHandler.postDelayed(this, 500);	
 		}
 	};
 	
@@ -135,7 +190,28 @@ public class ChessClock extends Activity {
 			secondsLeft     = secondsLeft % 60;
 					       
 			TextView p2 = (TextView)findViewById(R.id.t_Player2);
+			
+			if ( timeLeft == 0 ) {
+				Button b1 = (Button)findViewById(R.id.Player1);
+				Button b2 = (Button)findViewById(R.id.Player2);
+				Button pp = (Button)findViewById(R.id.Pause);
+				
+				p2.setTextColor(Color.RED);
+				b1.setBackgroundColor(Color.RED);
+				
+				b1.setClickable(false);
+				b2.setClickable(false);
+				pp.setClickable(false);
+				
+				myHandler.removeCallbacks(mUpdateTimeTask2);
+				myHandler.postDelayed(Blink2, 500);
+				return;		
+			}
 					       
+			if ( timeLeft <= 60000) {
+				p2.setTextColor(Color.YELLOW);
+			}
+			
 			if (secondsLeft < 10) {
 				p2.setText("" + minutesLeft + ":0" + secondsLeft);
 			} else {
