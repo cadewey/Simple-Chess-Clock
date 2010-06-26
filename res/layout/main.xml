@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+
+
+
+<Button android:layout_alignParentTop="true" android:layout_gravity="top" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/Player1" android:height="85sp" android:width="980sp" android:onClick="P1ClickHandler"></Button>
+<com.android.chessclock.CTextView android:layout_below="@+id/Player1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:clickable="false" android:cursorVisible="false" android:id="@+id/t_Player2" android:selectAllOnFocus="false" android:text="" android:gravity="center" android:textSize="72sp" android:width="980sp"></com.android.chessclock.CTextView>
+<Button android:layout_width="wrap_content" android:layout_centerHorizontal="true" android:layout_centerVertical="true" android:layout_height="wrap_content" android:id="@+id/Pause" android:height="40sp" android:width="75sp" android:text="||" android:textStyle="bold" android:textSize="20sp" android:layout_gravity="center" android:onClick="PauseListener"></Button>
+<TextView android:layout_above="@+id/Player2" android:layout_gravity="bottom" android:layout_width="wrap_content" android:layout_height="wrap_content" android:clickable="false" android:cursorVisible="false" android:id="@+id/t_Player1" android:selectAllOnFocus="false" android:text="" android:gravity="center" android:textSize="72sp" android:width="980sp"></TextView>
+<Button android:layout_alignParentBottom="true" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/Player2" android:height="85sp" android:width="980sp" android:onClick="P2ClickHandler"></Button>
+</RelativeLayout>
