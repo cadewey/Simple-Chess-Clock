@@ -1,5 +1,9 @@
 +------ Simple Chess Clock Change Log ------+
 
+*v0.3.1 (6/26/2010)
+-Fixed bug that caused game to go into a
+'paused' state when the options menu was
+opened after time had already run out.
 
 * v0.3.0 (6/26/2010)
 -Added options menu and options menu icons.

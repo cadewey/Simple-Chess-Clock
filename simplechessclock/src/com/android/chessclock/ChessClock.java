@@ -48,7 +48,7 @@ public class ChessClock extends Activity {
 	public static final String TAG = "INFO";
 	public static final String V_MAJOR = "0";
 	public static final String V_MINOR = "3";
-	public static final String V_MINI = "0";
+	public static final String V_MINI = "1";
 
 	private static final int SETTINGS = 0;
 	private static final int RESET = 1;
@@ -60,6 +60,7 @@ public class ChessClock extends Activity {
 	private int onTheClock = 0;
 	private int savedOTC = 0;
 	private boolean blink = false;
+	private boolean timeup = false;
 	private Handler myHandler = new Handler();
 	
     /** Called when the activity is first created. */
@@ -178,6 +179,7 @@ public class ChessClock extends Activity {
 			TextView p1 = (TextView)findViewById(R.id.t_Player1);
 			
 			if ( timeLeft == 0 ) {
+				timeup = true;
 				Button b1 = (Button)findViewById(R.id.Player1);
 				Button b2 = (Button)findViewById(R.id.Player2);
 				Button pp = (Button)findViewById(R.id.Pause);
@@ -280,6 +282,7 @@ public class ChessClock extends Activity {
 			TextView p2 = (TextView)findViewById(R.id.t_Player2);
 			
 			if ( timeLeft == 0 ) {
+				timeup = true;
 				Button b1 = (Button)findViewById(R.id.Player1);
 				Button b2 = (Button)findViewById(R.id.Player2);
 				Button pp = (Button)findViewById(R.id.Pause);
@@ -321,7 +324,7 @@ public class ChessClock extends Activity {
 		Button p2 = (Button)findViewById(R.id.Player2);
 		Button pp = (Button)findViewById(R.id.Pause);
 		
-		if ( onTheClock != 0 ) {
+		if ( ( onTheClock != 0 ) && ( !timeup ) ) {
 			savedOTC = onTheClock;
 			onTheClock = 0;
 			
