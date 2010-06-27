@@ -1,5 +1,10 @@
 +------ Simple Chess Clock Change Log ------+
 
+*v0.4 (6/27/2010)
+-Added menu option to reset the game clocks.
+-Clarified the language in the 'About' dialog.
+-Cleaned up some more code.
+
 *v0.3.1 (6/26/2010)
 -Fixed bug that caused game to go into a
 'paused' state when the options menu was
