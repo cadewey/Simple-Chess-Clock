@@ -29,7 +29,9 @@
 package com.android.chessclock;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -47,16 +49,16 @@ public class ChessClock extends Activity {
 	
 	public static final String TAG = "INFO";
 	public static final String V_MAJOR = "0";
-	public static final String V_MINOR = "3";
-	public static final String V_MINI = "1";
+	public static final String V_MINOR = "4";
+	public static final String V_MINI = "0";
 
 	private static final int SETTINGS = 0;
 	private static final int RESET = 1;
 	private static final int ABOUT = 2;
 	
-	private Dialog dialog;
-	private long t_P1 = 600000;
-	private long t_P2 = 600000;
+	private long start_time = 600000;
+	private long t_P1;
+	private long t_P2;
 	private int onTheClock = 0;
 	private int savedOTC = 0;
 	private boolean blink = false;
@@ -94,50 +96,72 @@ public class ChessClock extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch( item.getItemId() ) {
 			case SETTINGS:
-				Settings();
+				showDialog(SETTINGS);
 				return true;
 			case RESET:
-				Reset();
+				showDialog(RESET);
 				return true;
 			case ABOUT:
-				About();
+				showDialog(ABOUT);
 				return true;
 		}
 		
 		return false;
 	}
 	
-	private void Settings() {
-
-	}
-	
-	private void Reset() {
-		
-	}
-	
-	private void About() {
-		showDialog(1);
-		
-	}
-	
 	protected Dialog onCreateDialog(int id) {
-		dialog = new Dialog(this);
-
-		dialog.setContentView(R.layout.about_dialog);
-		dialog.setTitle("Simple Chess Clock (SCC) v"
+		Dialog dialog = new Dialog(this);
+		switch ( id ) {
+			case ABOUT:
+				dialog = AboutDialog();
+				break;
+			case RESET:
+				dialog = ResetDialog();
+				break;
+		}
+		
+		return dialog;
+	}
+	
+	private Dialog AboutDialog() {
+		Dialog d = new Dialog(this);
+		
+		d.setContentView(R.layout.about_dialog);
+		d.setTitle("Simple Chess Clock (SCC) v"
 				+ V_MAJOR + "."
 				+ V_MINOR + "."
 				+ V_MINI);
 
-		TextView text = (TextView) dialog.findViewById(R.id.text);
+		TextView text = (TextView) d.findViewById(R.id.text);
 		text.setText("Design/Coding: Carter Dewey\n"
 				+ "Copyright (c) Carter Dewey, 2010\n\n"
 				+ "SCC is free software licensed under the "
-				+ "GNU GPLv3.\n\n"
-				+ "To report bugs, please visit:\n"
+				+ "GNU GPLv3. You can view the GPLv3 at\n"
+				+ "http://www.gnu.org/licenses/gpl-3.0.html\n\n"
+				+ "To report bugs or view source code, visit:\n"
 				+ "http://code.google.com/p/simplechessclock/");
 		
-		return dialog;
+		return d;
+	}
+	
+	private Dialog ResetDialog() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage("Reset both clocks?")
+		       .setCancelable(false)
+		       .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+		           public void onClick(DialogInterface dialog, int id) {
+		        	   	SetUpGame();
+		                dialog.dismiss();
+		           }
+		       })
+		       .setNegativeButton("No", new DialogInterface.OnClickListener() {
+		           public void onClick(DialogInterface dialog, int id) {
+		                dialog.cancel();
+		           }
+		       });
+		AlertDialog alert = builder.create();
+
+		return alert;
 	}
 	
 	public OnClickListener P1ClickHandler = new OnClickListener() {
@@ -365,6 +389,9 @@ public class ChessClock extends Activity {
 	}
 	
 	private void SetUpGame() {
+		t_P1 = start_time;
+		t_P2 = start_time;
+		
 		TextView p1 = (TextView)findViewById(R.id.t_Player1);
         TextView p2 = (TextView)findViewById(R.id.t_Player2);
         
@@ -395,10 +422,8 @@ public class ChessClock extends Activity {
 	        p2.setText("" + minutesLeft2 + ":0" + secondsLeft2);
 	    } else {
 	        p2.setText("" + minutesLeft2 + ":" + secondsLeft2);            
-	    }
-	       
-	       
-        
+	    }	    
+	     
         p1_button.setOnClickListener(P1ClickHandler);
         p2_button.setOnClickListener(P2ClickHandler);
         pause.setOnClickListener(PauseListener);

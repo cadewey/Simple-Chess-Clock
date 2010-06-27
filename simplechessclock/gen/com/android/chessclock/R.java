@@ -12,11 +12,9 @@ public final class R {
     }
     public static final class drawable {
         public static final int about=0x7f020000;
-        public static final int android=0x7f020001;
-        public static final int android_small=0x7f020002;
-        public static final int icon=0x7f020003;
-        public static final int refresh=0x7f020004;
-        public static final int settings=0x7f020005;
+        public static final int icon=0x7f020001;
+        public static final int refresh=0x7f020002;
+        public static final int settings=0x7f020003;
     }
     public static final class id {
         public static final int Pause=0x7f050004;
