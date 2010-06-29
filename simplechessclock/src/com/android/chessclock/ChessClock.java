@@ -32,9 +32,12 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -56,7 +59,6 @@ public class ChessClock extends Activity {
 	private static final int RESET = 1;
 	private static final int ABOUT = 2;
 	
-	private long start_time = 600000;
 	private long t_P1;
 	private long t_P2;
 	private int onTheClock = 0;
@@ -96,7 +98,8 @@ public class ChessClock extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch( item.getItemId() ) {
 			case SETTINGS:
-				showDialog(SETTINGS);
+				showPrefs();
+				Log.v(TAG, "INFO: Trying to create Preferences screen");
 				return true;
 			case RESET:
 				showDialog(RESET);
@@ -107,6 +110,16 @@ public class ChessClock extends Activity {
 		}
 		
 		return false;
+	}
+	
+	private void showPrefs() {
+		Intent prefsActivity = new Intent(ChessClock.this, Prefs.class);
+		startActivity(prefsActivity);
+	}
+	
+	public void onWindowFocusChanged(boolean b) {
+		if (b)
+			SetUpGame();
 	}
 	
 	protected Dialog onCreateDialog(int id) {
@@ -189,7 +202,6 @@ public class ChessClock extends Activity {
 		myHandler.removeCallbacks(mUpdateTimeTask2);
 		myHandler.postDelayed(mUpdateTimeTask, 100);
 	}
-
 		
 	private Runnable mUpdateTimeTask = new Runnable() {
 		public void run() {
@@ -292,7 +304,6 @@ public class ChessClock extends Activity {
 		myHandler.removeCallbacks(mUpdateTimeTask2);
 		myHandler.postDelayed(mUpdateTimeTask2, 100);
 	}
-
 				
 	private Runnable mUpdateTimeTask2 = new Runnable() {
 		public void run() {
@@ -389,12 +400,25 @@ public class ChessClock extends Activity {
 	}
 	
 	private void SetUpGame() {
-		t_P1 = start_time;
-		t_P2 = start_time;
+		String timePref;
+		int start_time;
+		
+		SharedPreferences prefs = PreferenceManager
+        	.getDefaultSharedPreferences(this);
+		
+		timePref = prefs.getString("prefTime", "10");
+		Log.v("INFO", "INFO: Got preference (" + timePref + ").");
+
+		start_time = Integer.parseInt(timePref);
+		
+		t_P1 = start_time * 60000;
+		t_P2 = start_time * 60000;
 		
 		TextView p1 = (TextView)findViewById(R.id.t_Player1);
         TextView p2 = (TextView)findViewById(R.id.t_Player2);
-        
+        p1.setTextColor(Color.LTGRAY);
+        p2.setTextColor(Color.LTGRAY);
+
         Button p1_button = (Button)findViewById(R.id.Player1);
         Button p2_button = (Button)findViewById(R.id.Player2);
         
@@ -427,6 +451,8 @@ public class ChessClock extends Activity {
         p1_button.setOnClickListener(P1ClickHandler);
         p2_button.setOnClickListener(P2ClickHandler);
         pause.setOnClickListener(PauseListener);
+        myHandler.removeCallbacks(Blink);
+        myHandler.removeCallbacks(Blink2);
         
 	}
 }

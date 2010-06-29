@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+  xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceCategory android:title="Game Time"><ListPreference android:title="Set Starting Time" android:negativeButtonText="Cancel" android:selectable="true" android:enabled="true" android:dialogTitle="Select Time (Mins)" android:summary="Set how much time each player starts with" android:defaultValue="10" android:key="prefTime" android:entries="@array/timeEntries" android:entryValues="@array/timeValues"></ListPreference>
+</PreferenceCategory>
+</PreferenceScreen>
