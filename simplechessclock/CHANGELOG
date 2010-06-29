@@ -1,6 +1,9 @@
 +------ Simple Chess Clock Change Log ------+
 
-*v0.5 (6/29/20100
+*v0.5.1 (6/29/2010)
+-Couple of small bugfixes.
+
+*v0.5 (6/29/2010)
 -Added preference for setting the clock times.
 -Fixed bug that caused an expired clock to
 reset incorrectly.
