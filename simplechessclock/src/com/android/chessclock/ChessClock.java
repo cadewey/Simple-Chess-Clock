@@ -1,5 +1,5 @@
 /*************************************************************************
- * File: Main.java
+ * File: ChessClock.java
  * 
  * Implements the main form/class for Chess Clock.
  * 
@@ -9,7 +9,7 @@
  * 
  *************************************************************************
  *
- *    This file is part of Simple Chess Clock (SCC).
+ *   This file is part of Simple Chess Clock (SCC).
  *    
  *   SCC is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -31,12 +31,15 @@ package com.android.chessclock;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
@@ -53,11 +56,15 @@ public class ChessClock extends Activity {
 	public static final String TAG = "INFO";
 	public static final String V_MAJOR = "0";
 	public static final String V_MINOR = "5";
-	public static final String V_MINI = "1";
+	public static final String V_MINI = "4";
 
 	private static final int SETTINGS = 0;
 	private static final int RESET = 1;
 	private static final int ABOUT = 2;
+	
+	private DialogFactory DF = new DialogFactory();
+	private PowerManager pm;
+	private WakeLock wl;
 	
 	private long t_P1;
 	private long t_P2;
@@ -76,10 +83,25 @@ public class ChessClock extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,   
         						WindowManager.LayoutParams.FLAG_FULLSCREEN);
         
+        pm = (PowerManager) getSystemService(ChessClock.POWER_SERVICE);  
+        wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, "DoNotDimScreen");
+        
         setContentView(R.layout.main);
         
         SetUpGame();
         
+    }
+    
+    @Override
+    public void onPause() {
+    	super.onPause();
+    	wl.release();
+    }
+    
+    @Override
+    public void onDestroy() {
+    	wl.release();
+    	super.onDestroy();
     }
     
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -126,7 +148,7 @@ public class ChessClock extends Activity {
 		Dialog dialog = new Dialog(this);
 		switch ( id ) {
 			case ABOUT:
-				dialog = AboutDialog();
+				dialog = DF.AboutDialog(this, V_MAJOR, V_MINOR, V_MINI);
 				break;
 			case RESET:
 				dialog = ResetDialog();
@@ -134,27 +156,6 @@ public class ChessClock extends Activity {
 		}
 		
 		return dialog;
-	}
-	
-	private Dialog AboutDialog() {
-		Dialog d = new Dialog(this);
-		
-		d.setContentView(R.layout.about_dialog);
-		d.setTitle("Simple Chess Clock (SCC) v"
-				+ V_MAJOR + "."
-				+ V_MINOR + "."
-				+ V_MINI);
-
-		TextView text = (TextView) d.findViewById(R.id.text);
-		text.setText("Design/Coding: Carter Dewey\n"
-				+ "Copyright (c) Carter Dewey, 2010\n\n"
-				+ "SCC is free software licensed under the "
-				+ "GNU GPLv3. You can view the GPLv3 at\n"
-				+ "http://www.gnu.org/licenses/gpl-3.0.html\n\n"
-				+ "To report bugs or view source code, visit:\n"
-				+ "http://code.google.com/p/simplechessclock/");
-		
-		return d;
 	}
 	
 	private Dialog ResetDialog() {
@@ -205,6 +206,10 @@ public class ChessClock extends Activity {
 		
 	private Runnable mUpdateTimeTask = new Runnable() {
 		public void run() {
+			PowerManager pm = (PowerManager)getBaseContext().getSystemService(
+	                Context.POWER_SERVICE);
+			pm.userActivity(1, true);
+			
 			t_P1 -= 100;
 			long timeLeft = t_P1;
 				    
@@ -307,6 +312,10 @@ public class ChessClock extends Activity {
 				
 	private Runnable mUpdateTimeTask2 = new Runnable() {
 		public void run() {
+			PowerManager pm = (PowerManager)getBaseContext().getSystemService(
+	                Context.POWER_SERVICE);
+			pm.userActivity(1, true);
+			
 			t_P2 -= 100;
 			long timeLeft = t_P2;
 						   
@@ -405,7 +414,9 @@ public class ChessClock extends Activity {
 		
 		SharedPreferences prefs = PreferenceManager
         	.getDefaultSharedPreferences(this);
-		
+
+	    wl.acquire();
+
 		timePref = prefs.getString("prefTime", "10");
 		Log.v("INFO", "INFO: Got preference (" + timePref + ").");
 

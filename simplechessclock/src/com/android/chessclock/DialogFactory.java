@@ -1,16 +1,11 @@
 /*************************************************************************
- * File: CTextView.java
+ * File: DialogFactory.java
  * 
- * Implements a custom text view for drawing upside down.
+ * Creates the 'About' dialog.
  * 
- * Created: 6/24/2010
+ * Created: 7/3/2010
  * 
  * Author: Carter Dewey
- * 
- * Code was seen on StackOverflow, originally posted by Ravedave.
- * 
- * Original thread: http://stackoverflow.com/questions/2558257/
- * 		how-can-you-display-upside-down-text-with-a-textview-in-android
  * 
  *************************************************************************
  *
@@ -30,38 +25,36 @@
  *   along with SCC.  If not, see <http://www.gnu.org/licenses/>.
  *
  *************************************************************************/
-
 package com.android.chessclock;
 
+import android.app.Dialog;
 import android.content.Context;
-import android.graphics.Canvas;
-import android.util.AttributeSet;
 import android.widget.TextView;
 
-public class CTextView extends TextView {
+public class DialogFactory {
+	public DialogFactory() {
+		
+	}
+	
+	public Dialog AboutDialog(Context c, String MAJOR, String MINOR, String MINI) {
+		Dialog d = new Dialog(c);
+		
+		d.setContentView(R.layout.about_dialog);
+		d.setTitle("Simple Chess Clock (SCC) v"
+				+ MAJOR + "."
+				+ MINOR + "."
+				+ MINI);
 
-    public CTextView(Context context) {
-        super(context);
-    }
+		TextView text = (TextView) d.findViewById(R.id.text);
+		text.setText("Design/Coding: Carter Dewey\n"
+				+ "Copyright (c) Carter Dewey, 2010\n\n"
+				+ "SCC is free software licensed under the "
+				+ "GNU GPLv3. You can view the GPLv3 at\n"
+				+ "http://www.gnu.org/licenses/gpl-3.0.html\n\n"
+				+ "To report bugs or view source code, visit:\n"
+				+ "http://code.google.com/p/simplechessclock/");
+		
+		return d;
+	}
 
-    public CTextView(Context context, AttributeSet attrs)
-    {
-        super(context, attrs);
-    }
-
-    @Override
-    public void onDraw(Canvas canvas) {
-        //Save the current canvas
-        canvas.save(); 
-
-        //Rotate the canvas (around the center of the text)
-        float py = this.getHeight()/2.0f;
-        float px = this.getWidth()/2.0f;
-        canvas.rotate(180, px, py);
-        
-        super.onDraw(canvas); 
-
-        //Restore the old canvas 
-        canvas.restore(); 
-    }
 }

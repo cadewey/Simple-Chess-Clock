@@ -1,5 +1,12 @@
 +------ Simple Chess Clock Change Log ------+
 
+*v0.5.4 (7/3/2010)
+-Length of game is now configurable (from
+preset choices)
+-Screen should no longer dim/lock while the
+clocks are running.
+-Cleaned up some code.
+
 *v0.5.1 (6/29/2010)
 -Couple of small bugfixes.
 
