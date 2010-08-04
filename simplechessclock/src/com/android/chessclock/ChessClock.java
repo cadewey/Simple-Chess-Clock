@@ -56,7 +56,7 @@ public class ChessClock extends Activity {
 	public static final String TAG = "INFO";
 	public static final String V_MAJOR = "0";
 	public static final String V_MINOR = "5";
-	public static final String V_MINI = "4";
+	public static final String V_MINI = "5";
 
 	private static final int SETTINGS = 0;
 	private static final int RESET = 1;
@@ -72,6 +72,7 @@ public class ChessClock extends Activity {
 	private int savedOTC = 0;
 	private boolean blink = false;
 	private boolean timeup = false;
+	private boolean openedMenu = false;
 	private Handler myHandler = new Handler();
 	
     /** Called when the activity is first created. */
@@ -106,6 +107,7 @@ public class ChessClock extends Activity {
     
     public boolean onPrepareOptionsMenu(Menu menu) {
     	PauseGame();
+    	openedMenu = true;
     	return true;
     }
 	
@@ -140,8 +142,10 @@ public class ChessClock extends Activity {
 	}
 	
 	public void onWindowFocusChanged(boolean b) {
-		if (b)
+		if (b && !openedMenu) {
 			SetUpGame();
+			openedMenu = false;
+		}
 	}
 	
 	protected Dialog onCreateDialog(int id) {
