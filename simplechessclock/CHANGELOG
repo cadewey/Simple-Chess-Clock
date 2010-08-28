@@ -1,4 +1,13 @@
 +------ Simple Chess Clock Change Log ------+
+*v0.6.0 (8/27/2010)
+-Implemented Fischer time delays.
+-Changed the wakelock type.
+-Cleaned up miscellaneous portions of code.
+-Improved comments in the code.
+
+*v0.5.5 (8/3/2010)
+-Time setting is now input-based instead of
+being a selection.
 
 *v0.5.4 (7/3/2010)
 -Length of game is now configurable (from
