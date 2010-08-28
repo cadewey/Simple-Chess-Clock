@@ -9,8 +9,8 @@ package com.android.chessclock;
 
 public final class R {
     public static final class array {
-        public static final int timeEntries=0x7f060000;
-        public static final int timeValues=0x7f060001;
+        public static final int delayTypes=0x7f060000;
+        public static final int delayVals=0x7f060001;
     }
     public static final class attr {
     }
