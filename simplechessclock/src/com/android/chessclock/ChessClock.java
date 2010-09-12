@@ -689,7 +689,7 @@ public class ChessClock extends Activity {
 	}
 	
 	/** Set up (or refresh) all game parameters */
-	private void SetUpGame() {    
+	private void SetUpGame() { 
 	    /** Load all stored preferences */
 	    SharedPreferences prefs = PreferenceManager
     	.getDefaultSharedPreferences(this);
@@ -708,7 +708,6 @@ public class ChessClock extends Activity {
 		
 		Uri uri = Uri.parse(alertTone);
 		ringtone = RingtoneManager.getRingtone(getBaseContext(), uri);
-		ringtone.play();
 		
 		/** Set time equal to minutes * ms per minute */
 		t_P1 = time * 60000;
