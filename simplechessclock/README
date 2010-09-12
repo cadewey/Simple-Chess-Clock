@@ -1,0 +1,38 @@
++-------------    Simple Chess Clock     ------------+
+
+=== About Simple Chess Clock ===
+
+Simple Chess Clock is what its name implies: a chess
+clock (that's simple!). It aims to be easy to use and
+easy to read, while also providing some reasonably
+expected features. Simple Chess Clock (SCC) was
+developed for devices running Android 1.6 or later,
+using API revision 4 or later. It has currently
+been tested on the following devices:
+
+-HTC EVO 4g
+
+If you experience problems on your device, please
+visit code.google.com/p/simplechessclock to report
+a bug (click the "Issues" tab).
+
+=== Modifying/Copying ===
+
+SCC is released under the GNU GPLv3, which can be
+found in the LICENSE file. You may also view the
+text of the license the GNU website:
+
+http://www.gnu.org/licenses/gpl-3.0-standalone.html
+
+This means that SCC is free open-source software,
+currently both "free" as in speech and "free" as
+in beer. You may copy or modify the source however
+you like, but if you redistribute the application
+you also need to provide the source (and license
+it under the GPL) and include the original copyright.
+
+=== Changelog ===
+
+v1.0.0b (9-11-2010)
+*First beta release, with all planned 1.0 features.
+

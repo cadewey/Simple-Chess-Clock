@@ -36,11 +36,15 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
+import android.provider.*;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -58,9 +62,9 @@ public class ChessClock extends Activity {
 	 *-----------------------------------*/
 	/** Version info and debug tag constants */
 	public static final String TAG = "INFO";
-	public static final String V_MAJOR = "0";
-	public static final String V_MINOR = "6";
-	public static final String V_MINI = "0";
+	public static final String V_MAJOR = "1";
+	public static final String V_MINOR = "0";
+	public static final String V_MINI = "0b";
 
 	/** Constants for the dialog windows */
 	private static final int SETTINGS = 0;
@@ -71,7 +75,6 @@ public class ChessClock extends Activity {
 	private static String NO_DELAY = "None";
 	private static String FISCHER = "Fischer";
 	private static String BRONSTEIN = "Bronstein";
-	private String delay = NO_DELAY;
 	
 	/**-----------------------------------
 	 *     CHESSCLOCK CLASS MEMBERS
@@ -81,12 +84,16 @@ public class ChessClock extends Activity {
 	private DialogFactory DF = new DialogFactory();
 	private PowerManager pm;
 	private WakeLock wl;
+	private String delay = NO_DELAY;
+	private String alertTone;
+	private Ringtone ringtone = null;
 	
 	/** ints/longs */
 	private int time;
+	private int b_delay;
 	private long t_P1;
 	private long t_P2;
-	private long delay_time;
+	private int delay_time;
 	private int onTheClock = 0;
 	private int savedOTC = 0;
 	
@@ -108,7 +115,7 @@ public class ChessClock extends Activity {
         
         /** Create a PowerManager object so we can get the wakelock */
         pm = (PowerManager) getSystemService(ChessClock.POWER_SERVICE);  
-        wl = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "ChessWakeLock");
+        wl = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "ChessWakeLock");
         
         setContentView(R.layout.main);
         
@@ -117,18 +124,44 @@ public class ChessClock extends Activity {
     
     @Override
     public void onPause() {
-    	wl.release();
+    	if ( wl.isHeld() ) {
+    		wl.release();
+    	}
+    	
+    	if ( ringtone.isPlaying() ) {
+    		ringtone.stop();
+    	}
     	super.onPause();
     }
     
     @Override
+    public void onResume() {
+    	/** Get the wakelock */
+	    wl.acquire();
+	    
+	    if ( ringtone.isPlaying() ) {
+    		ringtone.stop();
+    	}
+	    super.onResume();
+    }
+    
+    @Override
     public void onDestroy() {
-    	wl.release();
+    	if ( wl.isHeld() ) {
+    		wl.release();
+    	}
+
+    	if ( ringtone.isPlaying() ) {
+    		ringtone.stop();
+    	}
     	super.onDestroy();
     }
     
     public boolean onPrepareOptionsMenu(Menu menu) {
     	prefmenu = true;
+    	if ( ringtone.isPlaying() ) {
+    		ringtone.stop();
+    	}
     	PauseGame();
     	return true;
     }
@@ -216,6 +249,8 @@ public class ChessClock extends Activity {
 		SharedPreferences prefs = PreferenceManager
     	.getDefaultSharedPreferences(this);
 		
+		alertTone = prefs.getString("prefAlertSound", Settings.System.DEFAULT_RINGTONE_URI.toString());
+		
 		/** Check for a new delay style */
 		String new_delay = prefs.getString("prefDelay","None");
 		if ( new_delay != delay ) {
@@ -283,6 +318,29 @@ public class ChessClock extends Activity {
 			   
 		Button p1_button = (Button)findViewById(R.id.Player1);
 		p1_button.setBackgroundColor(Color.LTGRAY);
+		
+		if ( delay.equals(BRONSTEIN) ) {
+			TextView p2 = (TextView)findViewById(R.id.t_Player2);
+			
+			int secondsLeft = (int) (t_P2 / 1000);
+			int minutesLeft = secondsLeft / 60;
+			secondsLeft     = secondsLeft % 60;
+			
+			secondsLeft += 1;
+			if ( secondsLeft == 60 ) {
+				minutesLeft += 1;
+				secondsLeft = 0;
+			} else if ( t_P2 == 0 ) {
+				secondsLeft = 0;
+			} else if ( t_P2 == time * 60000 ) {
+				secondsLeft -= 1;
+			}
+			if (secondsLeft < 10) {
+			    p2.setText("" + minutesLeft + ":0" + secondsLeft);
+			} else {
+			    p2.setText("" + minutesLeft + ":" + secondsLeft);            
+			}
+		}
 			   
 		Button pp = (Button)findViewById(R.id.Pause);
 		pp.setBackgroundColor(Color.LTGRAY);
@@ -299,13 +357,26 @@ public class ChessClock extends Activity {
 	/** Handles the "tick" event for Player 1's clock */
 	private Runnable mUpdateTimeTask = new Runnable() {
 		public void run() {
+			TextView p1 = (TextView)findViewById(R.id.t_Player1);
+			String delay_string = "";
 			
 			/** Check for delays and apply them */
 			if ( delay.equals(FISCHER) && !delayed ) {
 				delayed = true;
-				t_P1 += delay_time * 1000 + 100;
-			} else if ( delay == BRONSTEIN ) {
-				// TODO: Add Bronstein delay handling
+				t_P1 += delay_time * 1000;
+			} else if ( delay.equals(BRONSTEIN) && !delayed ) {
+				delayed = true;
+				b_delay = delay_time * 1000; //Deduct the first .1s;
+				t_P1 += 100; //We'll deduct this again shortly
+				delay_string = "+" + (b_delay / 1000 );
+			} else if ( delay.equals(BRONSTEIN) && delayed ) {
+				if ( b_delay > 0 ) {
+					b_delay -= 100;
+					t_P1 += 100;
+				}
+				if (b_delay > 0 ) {
+					delay_string = "+" + ( ( b_delay / 1000 ) + 1 );
+				}
 			}
 			
 			/** Deduct 0.1s from P1's clock */
@@ -316,8 +387,16 @@ public class ChessClock extends Activity {
 			int secondsLeft = (int) (timeLeft / 1000);
 			int minutesLeft = secondsLeft / 60;
 			secondsLeft     = secondsLeft % 60;
-			       
-			TextView p1 = (TextView)findViewById(R.id.t_Player1);
+			
+			secondsLeft += 1;
+			if ( secondsLeft == 60 ) {
+				minutesLeft += 1;
+				secondsLeft = 0;
+			} else if ( timeLeft == 0 ) {
+				secondsLeft = 0;
+			} else if ( timeLeft == time * 60000 ) {
+				secondsLeft -= 1;
+			}
 			
 			/** Did we run out of time? */
 			if ( timeLeft == 0 ) {
@@ -334,21 +413,16 @@ public class ChessClock extends Activity {
 				b2.setClickable(false);
 				pp.setClickable(false);
 				
+				Uri uri = Uri.parse(alertTone);
+				ringtone = RingtoneManager.getRingtone(getBaseContext(), uri);
+				ringtone.play();
+				
 				/** Blink the clock display */
 				myHandler.removeCallbacks(mUpdateTimeTask2);
 				myHandler.postDelayed(Blink, 500);
 				return;
 				
 			}
-			
-			/** 
-			 * Make the time display more accurately. Adding the offset
-			 * ensures that, for example, when the clock displays zero
-			 * the player actually has zero seconds left. Otherwise, due
-			 * to int truncation, the clock says 0 at 0.9 seconds.
-			 */
-			int offset = timeLeft == time ? 0 : 1;
-			secondsLeft += offset;
 			       		
 			/** Color clock yellow if we're under 1 minute */
 			if ( timeLeft < 60000 ) {
@@ -357,9 +431,9 @@ public class ChessClock extends Activity {
 			
 			/** Display the time, omitting leading 0's for times < 10 minutes */
 			if (secondsLeft < 10) {
-			    p1.setText("" + minutesLeft + ":0" + secondsLeft);
+			    p1.setText("" + minutesLeft + ":0" + secondsLeft + delay_string);
 			} else {
-			    p1.setText("" + minutesLeft + ":" + secondsLeft);            
+			    p1.setText("" + minutesLeft + ":" + secondsLeft + delay_string);            
 			}
 			     
 			/** Re-post the handler so it fires in another 0.1s */
@@ -395,6 +469,29 @@ public class ChessClock extends Activity {
 		Button p2_button = (Button)findViewById(R.id.Player2);
 		p2_button.setBackgroundColor(Color.LTGRAY);
 		
+		if ( delay.equals(BRONSTEIN) ) {
+			TextView p1 = (TextView)findViewById(R.id.t_Player1);
+			
+			int secondsLeft = (int) (t_P1 / 1000);
+			int minutesLeft = secondsLeft / 60;
+			secondsLeft     = secondsLeft % 60;
+			
+			secondsLeft += 1;
+			if ( secondsLeft == 60 ) {
+				minutesLeft += 1;
+				secondsLeft = 0;
+			} else if ( t_P1 == 0 ) {
+				secondsLeft = 0;
+			} else if ( t_P1 == time * 60000 ) {
+				secondsLeft -= 1;
+			}
+			if (secondsLeft < 10) {
+			    p1.setText("" + minutesLeft + ":0" + secondsLeft);
+			} else {
+			    p1.setText("" + minutesLeft + ":" + secondsLeft);            
+			}
+		}
+		
 		Button pp = (Button)findViewById(R.id.Pause);
 		pp.setBackgroundColor(Color.LTGRAY);
 		
@@ -410,13 +507,26 @@ public class ChessClock extends Activity {
 	/** Handles the "tick" event for Player 2's clock */
 	private Runnable mUpdateTimeTask2 = new Runnable() {
 		public void run() {
+			TextView p2 = (TextView)findViewById(R.id.t_Player2);
+			String delay_string = "";
 			
 			/** Check for delays and apply them */
 			if ( delay.equals(FISCHER) && !delayed ) {
-				t_P2 += delay_time * 1000 + 100;
 				delayed = true;
-			} else if ( delay == BRONSTEIN ) {
-				// TODO: Add Bronstein delay handling
+				t_P2 += delay_time * 1000;
+			} else if ( delay.equals(BRONSTEIN) && !delayed ) {
+				delayed = true;
+				b_delay = delay_time * 1000; //Deduct the first .1s;
+				t_P2 += 100; //We'll deduct this again shortly
+				delay_string = "+" + ( b_delay / 1000 );
+			} else if ( delay.equals(BRONSTEIN) && delayed ) {
+				if ( b_delay > 0 ) {
+					b_delay -= 100;
+					t_P2 += 100;
+				}
+				if (b_delay > 0 ) {
+					delay_string = "+" + ( ( b_delay / 1000 ) + 1 );
+				}
 			}
 			
 			/** Deduct 0.1s from P2's clock */
@@ -427,8 +537,16 @@ public class ChessClock extends Activity {
 			int secondsLeft = (int) (timeLeft / 1000);
 			int minutesLeft = secondsLeft / 60;
 			secondsLeft     = secondsLeft % 60;
-					       
-			TextView p2 = (TextView)findViewById(R.id.t_Player2);
+			
+			secondsLeft += 1;
+			if ( secondsLeft == 60 ) {
+				minutesLeft += 1;
+				secondsLeft = 0;
+			} else if ( timeLeft == 0 ) {
+				secondsLeft = 0;
+			} else if ( timeLeft == time * 60000 ) {
+				secondsLeft -= 1;
+			}
 			
 			/** Did we run out of time? */
 			if ( timeLeft == 0 ) {
@@ -445,20 +563,15 @@ public class ChessClock extends Activity {
 				b2.setClickable(false);
 				pp.setClickable(false);
 				
+				Uri uri = Uri.parse(alertTone);
+				ringtone = RingtoneManager.getRingtone(getBaseContext(), uri);
+				ringtone.play();
+				
 				/** Blink the clock display */
 				myHandler.removeCallbacks(mUpdateTimeTask2);
 				myHandler.postDelayed(Blink2, 500);
 				return;		
 			}
-				
-			/** 
-			 * Make the time display more accurately. Adding the offset
-			 * ensures that, for example, when the clock displays zero
-			 * the player actually has zero seconds left. Otherwise, due
-			 * to int truncation, the clock says 0 at 0.9 seconds.
-			 */
-			int offset = timeLeft == time ? 0 : 1;
-			secondsLeft += offset;
 			
 			/** Color clock yellow if we're under 1 minute */
 			if ( timeLeft < 60000) {
@@ -467,9 +580,9 @@ public class ChessClock extends Activity {
 			
 			/** Display the time, omitting leading 0's for times < 10 minutes */
 			if (secondsLeft < 10) {
-				p2.setText("" + minutesLeft + ":0" + secondsLeft);
+				p2.setText("" + minutesLeft + ":0" + secondsLeft + delay_string);
 			} else {
-				p2.setText("" + minutesLeft + ":" + secondsLeft);            
+				p2.setText("" + minutesLeft + ":" + secondsLeft + delay_string);            
 			}
 					     
 			/** Re-post the handler so it fires in another 0.1s */
@@ -576,11 +689,7 @@ public class ChessClock extends Activity {
 	}
 	
 	/** Set up (or refresh) all game parameters */
-	private void SetUpGame() {				
-
-		/** Get the wakelock */
-	    wl.acquire();
-	    
+	private void SetUpGame() {    
 	    /** Load all stored preferences */
 	    SharedPreferences prefs = PreferenceManager
     	.getDefaultSharedPreferences(this);
@@ -593,6 +702,13 @@ public class ChessClock extends Activity {
 		
 		delay_time = Integer.parseInt( prefs.getString("prefDelayTime", "0") );
 		Log.v("INFO", "INFO: Got preference (" + delay_time + ").");
+		
+		alertTone = prefs.getString("prefAlertSound", Settings.System.DEFAULT_RINGTONE_URI.toString());
+		Log.v("INFO", "INFO: Got preference (" + alertTone.toString() + ").");
+		
+		Uri uri = Uri.parse(alertTone);
+		ringtone = RingtoneManager.getRingtone(getBaseContext(), uri);
+		ringtone.play();
 		
 		/** Set time equal to minutes * ms per minute */
 		t_P1 = time * 60000;
