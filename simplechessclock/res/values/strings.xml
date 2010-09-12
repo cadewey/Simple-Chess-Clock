@@ -2,7 +2,7 @@
 <resources>
 <string name="time_pref">time_pref</string>
 <string name="hello">Hello World, ChessClock!</string>
-<string name="app_name">Chess Clock</string>
+<string name="app_name">Simple Chess Clock</string>
 <string name="checkbox">CheckBox</string>
 
 <string-array name="delayTypes">
