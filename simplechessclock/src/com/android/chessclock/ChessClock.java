@@ -64,7 +64,7 @@ public class ChessClock extends Activity {
 	public static final String TAG = "INFO";
 	public static final String V_MAJOR = "1";
 	public static final String V_MINOR = "0";
-	public static final String V_MINI = "0b";
+	public static final String V_MINI = "1b";
 
 	/** Constants for the dialog windows */
 	private static final int SETTINGS = 0;
@@ -307,7 +307,11 @@ public class ChessClock extends Activity {
 		 * and that we haven't yet received our delay
 		 */
 		onTheClock = 1;
-		delayed = false;
+		if ( savedOTC == 0 ) {
+			delayed = false;
+		} else {
+			savedOTC = 0;
+		}
 		
 		/** 
 		 * Make the other player's button green and our
@@ -457,7 +461,11 @@ public class ChessClock extends Activity {
 		 * and that we haven't yet received our delay
 		 */
 		onTheClock = 2;
-		delayed = false;
+		if ( savedOTC == 0 ) {
+			delayed = false;
+		} else {
+			savedOTC = 0;
+		}
 		
 		/** 
 		 * Make the other player's button green and our

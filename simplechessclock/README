@@ -33,6 +33,10 @@ it under the GPL) and include the original copyright.
 
 === Changelog ===
 
+v1.0.1b (9-12-2010)
+*Fixed a bug that caused delays to be applied twice
+if a player's clock was paused and then unpaused.
+
 v1.0.0b (9-11-2010)
 *First beta release, with all planned 1.0 features.
 
