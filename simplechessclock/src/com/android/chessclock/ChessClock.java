@@ -64,7 +64,7 @@ public class ChessClock extends Activity {
 	public static final String TAG = "INFO";
 	public static final String V_MAJOR = "1";
 	public static final String V_MINOR = "0";
-	public static final String V_MINI = "1b";
+	public static final String V_MINI = "2";
 
 	/** Constants for the dialog windows */
 	private static final int SETTINGS = 0;
@@ -131,6 +131,8 @@ public class ChessClock extends Activity {
     	if ( ringtone.isPlaying() ) {
     		ringtone.stop();
     	}
+    	
+    	PauseGame();
     	super.onPause();
     }
     
@@ -278,6 +280,7 @@ public class ChessClock extends Activity {
 		       .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 		           public void onClick(DialogInterface dialog, int id) {
 		        	   	SetUpGame();
+		        	   	onTheClock = 0;
 		                dialog.dismiss();
 		           }
 		       })
@@ -431,6 +434,8 @@ public class ChessClock extends Activity {
 			/** Color clock yellow if we're under 1 minute */
 			if ( timeLeft < 60000 ) {
 				p1.setTextColor(Color.YELLOW);
+			} else {
+				p1.setTextColor(Color.LTGRAY);
 			}
 			
 			/** Display the time, omitting leading 0's for times < 10 minutes */
@@ -584,6 +589,8 @@ public class ChessClock extends Activity {
 			/** Color clock yellow if we're under 1 minute */
 			if ( timeLeft < 60000) {
 				p2.setTextColor(Color.YELLOW);
+			} else {
+				p2.setTextColor(Color.LTGRAY);
 			}
 			
 			/** Display the time, omitting leading 0's for times < 10 minutes */

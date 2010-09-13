@@ -33,6 +33,15 @@ it under the GPL) and include the original copyright.
 
 === Changelog ===
 
+v1.0.2 (9-13-2010)
+*Fixed a bug that caused one clock to incorrectly
+continue running after "Reset Clocks" was used.
+*Made the app properly pause the game when Home
+or Back are used to exit.
+*Fixed the colouring of the clock text in cases
+where time dips below 60s then rises above it
+again (due to Fischer delay).
+
 v1.0.1b (9-12-2010)
 *Fixed a bug that caused delays to be applied twice
 if a player's clock was paused and then unpaused.
