@@ -32,6 +32,10 @@ you also need to provide the source (and license
 it under the GPL) and include the original copyright.
 
 === Changelog ===
+v1.1.0 (9-27-2010)
+*Added haptic feedback option
+*Cleaned up some more code
+
 v1.0.3 (9-24-2010)
 *Changed the package name to conform to Google's
 naming standards.

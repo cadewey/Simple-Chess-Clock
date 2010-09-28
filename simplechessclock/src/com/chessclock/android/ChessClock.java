@@ -63,8 +63,8 @@ public class ChessClock extends Activity {
 	/** Version info and debug tag constants */
 	public static final String TAG = "INFO";
 	public static final String V_MAJOR = "1";
-	public static final String V_MINOR = "0";
-	public static final String V_MINI = "3";
+	public static final String V_MINOR = "1";
+	public static final String V_MINI = "0";
 
 	/** Constants for the dialog windows */
 	private static final int SETTINGS = 0;
@@ -98,10 +98,12 @@ public class ChessClock extends Activity {
 	private int savedOTC = 0;
 	
 	/** booleans */
+	private boolean haptic = false;
 	private boolean blink = false;
 	private boolean timeup = false;
 	private boolean prefmenu = false;
 	private boolean delayed = false;
+	private boolean hapticChange = false;
 	
     /** Called when the activity is first created. */
     @Override
@@ -158,6 +160,27 @@ public class ChessClock extends Activity {
     	}
     	super.onDestroy();
     }
+	
+	/**
+	 * Formats the provided time to a readable string
+	 * @param time - time to format
+	 * @return str_time - formatted time (String)
+	 */
+	private String FormatTime(long time) {
+		int secondsLeft = (int)time / 1000;
+		int minutesLeft = secondsLeft / 60;
+	    secondsLeft     = secondsLeft % 60;
+	    
+	    String str_time;
+	    
+	    if (secondsLeft < 10) {
+	        str_time = "" + minutesLeft + ":0" + secondsLeft;
+	    } else {
+	        str_time = "" + minutesLeft + ":" + secondsLeft;            
+	    }
+	    
+	    return str_time;
+	}
     
     public boolean onPrepareOptionsMenu(Menu menu) {
     	prefmenu = true;
@@ -270,6 +293,13 @@ public class ChessClock extends Activity {
 		if ( new_delay_time != delay_time ) {
 			SetUpGame();
 		}
+		
+		boolean new_haptic = prefs.getBoolean("prefHaptic", false);
+		if ( new_haptic != haptic ) {
+			// No reason to reload the clocks for this one
+			hapticChange = true;
+			SetUpGame();
+		}
 	}
 	
 	/** Creates and displays the "Reset Clocks" alert dialog */
@@ -296,6 +326,11 @@ public class ChessClock extends Activity {
 	
 	/** Called when P1ClickHandler registers a click/touch event */
 	private void P1Click() {
+		Button p1_button = (Button)findViewById(R.id.Player1);
+		Button p2_button = (Button)findViewById(R.id.Player2);
+		
+		p1_button.performHapticFeedback(1);
+		
 		/** Un-dim the screen */
 		PowerManager pm = (PowerManager)getBaseContext().getSystemService(
                 Context.POWER_SERVICE);
@@ -320,10 +355,7 @@ public class ChessClock extends Activity {
 		 * Make the other player's button green and our
 		 * button and the pause button gray.
 		 */
-		Button p2_button = (Button)findViewById(R.id.Player2);
-		p2_button.setBackgroundColor(Color.GREEN);
-			   
-		Button p1_button = (Button)findViewById(R.id.Player1);
+		p2_button.setBackgroundColor(Color.GREEN);   
 		p1_button.setBackgroundColor(Color.LTGRAY);
 		
 		if ( delay.equals(BRONSTEIN) ) {
@@ -452,6 +484,11 @@ public class ChessClock extends Activity {
 	
 	/** Called when P2ClickHandler registers a click/touch event */
 	private void P2Click() {
+		Button p1_button = (Button)findViewById(R.id.Player1);
+		Button p2_button = (Button)findViewById(R.id.Player2);
+
+		p2_button.performHapticFeedback(1);
+
 		/** Un-dim the screen */
 		PowerManager pm = (PowerManager)getBaseContext().getSystemService(
                 Context.POWER_SERVICE);
@@ -476,10 +513,7 @@ public class ChessClock extends Activity {
 		 * Make the other player's button green and our
 		 * button and the pause button gray.
 		 */
-		Button p1_button = (Button)findViewById(R.id.Player1);
 		p1_button.setBackgroundColor(Color.GREEN);
-		
-		Button p2_button = (Button)findViewById(R.id.Player2);
 		p2_button.setBackgroundColor(Color.LTGRAY);
 		
 		if ( delay.equals(BRONSTEIN) ) {
@@ -680,6 +714,8 @@ public class ChessClock extends Activity {
 		Button p2 = (Button)findViewById(R.id.Player2);
 		Button pp = (Button)findViewById(R.id.Pause);
 		
+		pp.performHapticFeedback(1);
+		
 		/** Figure out if we need to pause or unpause */
 		if ( onTheClock != 0 ) {
 			savedOTC = onTheClock;
@@ -709,17 +745,36 @@ public class ChessClock extends Activity {
 	    SharedPreferences prefs = PreferenceManager
     	.getDefaultSharedPreferences(this);
 	    
-		delay = prefs.getString("prefDelay","None");
-		Log.v("INFO", "INFO: Got preference (" + delay + ").");
+	    /** Take care of a haptic change if needed */
+		haptic = prefs.getBoolean("prefHaptic", false);
 
-		time = Integer.parseInt( prefs.getString("prefTime", "10") );
-		Log.v("INFO", "INFO: Got preference (" + time + ").");
-		
+		TextView p1 = (TextView)findViewById(R.id.t_Player1);
+        TextView p2 = (TextView)findViewById(R.id.t_Player2);
+        p1.setTextColor(Color.LTGRAY);
+        p2.setTextColor(Color.LTGRAY);
+
+        Button p1_button = (Button)findViewById(R.id.Player1);
+        Button p2_button = (Button)findViewById(R.id.Player2);
+        Button pause = (Button)findViewById(R.id.Pause);
+
+        p1_button.setHapticFeedbackEnabled(haptic);
+        p2_button.setHapticFeedbackEnabled(haptic);
+        pause.setHapticFeedbackEnabled(haptic);
+        
+        if (hapticChange)
+        {
+        	/**
+        	 * We're just changing haptic feedback on this run through,
+        	 * don't reload everything else!
+        	 */
+        	hapticChange = false;
+        	return;
+        }
+	    
+		delay = prefs.getString("prefDelay","None");
+		time = Integer.parseInt( prefs.getString("prefTime", "10") );		
 		delay_time = Integer.parseInt( prefs.getString("prefDelayTime", "0") );
-		Log.v("INFO", "INFO: Got preference (" + delay_time + ").");
-		
-		alertTone = prefs.getString("prefAlertSound", Settings.System.DEFAULT_RINGTONE_URI.toString());
-		Log.v("INFO", "INFO: Got preference (" + alertTone.toString() + ").");
+		alertTone = prefs.getString("prefAlertSound", Settings.System.DEFAULT_RINGTONE_URI.toString());		
 		
 		Uri uri = Uri.parse(alertTone);
 		ringtone = RingtoneManager.getRingtone(getBaseContext(), uri);
@@ -729,41 +784,13 @@ public class ChessClock extends Activity {
 		t_P2 = time * 60000;
 		
 		/** Set up the buttons */
-		TextView p1 = (TextView)findViewById(R.id.t_Player1);
-        TextView p2 = (TextView)findViewById(R.id.t_Player2);
-        p1.setTextColor(Color.LTGRAY);
-        p2.setTextColor(Color.LTGRAY);
-
-        Button p1_button = (Button)findViewById(R.id.Player1);
-        Button p2_button = (Button)findViewById(R.id.Player2);
-        
-        Button pause = (Button)findViewById(R.id.Pause);
-        pause.setBackgroundColor(Color.LTGRAY);
-        
-        p1_button.setBackgroundColor(Color.LTGRAY);
-        p2_button.setBackgroundColor(Color.LTGRAY);
+		 p1_button.setBackgroundColor(Color.LTGRAY);
+	     p2_button.setBackgroundColor(Color.LTGRAY);
+	     pause.setBackgroundColor(Color.LTGRAY);
                
         /** Format and display the clocks */
-        int secondsLeft = (int) (t_P1 / 1000);
-	    int minutesLeft = secondsLeft / 60;
-	    secondsLeft     = secondsLeft % 60;
-	    
-	    int secondsLeft2 = (int) (t_P2 / 1000);
-	    int minutesLeft2 = secondsLeft2 / 60;
-	    secondsLeft2     = secondsLeft2 % 60;
-	    
-	    if (secondsLeft < 10) {
-	        p1.setText("" + minutesLeft + ":0" + secondsLeft);
-	    } else {
-	        p1.setText("" + minutesLeft + ":" + secondsLeft);            
-	    }
-	    
-	    if (secondsLeft < 10) {
-	        p2.setText("" + minutesLeft2 + ":0" + secondsLeft2);
-	    } else {
-	        p2.setText("" + minutesLeft2 + ":" + secondsLeft2);            
-	    }	    
-	     
+        p1.setText(FormatTime(t_P1));
+	    p2.setText(FormatTime(t_P2));
 	    /** 
 	     * Register the click listeners and unregister any
 	     * text blinking timers that may exist.
