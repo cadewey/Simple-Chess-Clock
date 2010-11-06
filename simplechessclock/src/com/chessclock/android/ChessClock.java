@@ -121,7 +121,7 @@ public class ChessClock extends Activity {
         
         setContentView(R.layout.main);
         
-        SetUpGame();       
+        SetUpGame();        
     }
     
     @Override
@@ -328,7 +328,7 @@ public class ChessClock extends Activity {
 	private void P1Click() {
 		Button p1_button = (Button)findViewById(R.id.Player1);
 		Button p2_button = (Button)findViewById(R.id.Player2);
-		
+				
 		p1_button.performHapticFeedback(1);
 		
 		/** Un-dim the screen */
@@ -772,9 +772,24 @@ public class ChessClock extends Activity {
         }
 	    
 		delay = prefs.getString("prefDelay","None");
-		time = Integer.parseInt( prefs.getString("prefTime", "10") );		
-		delay_time = Integer.parseInt( prefs.getString("prefDelayTime", "0") );
+		if ( delay.equals(""))
+			delay = "None";
+		
+		try {
+			time = Integer.parseInt( prefs.getString("prefTime", "10") );	
+		} catch (NumberFormatException n) {
+			time = 10;
+		}
+		
+		try {
+			delay_time = Integer.parseInt( prefs.getString("prefDelayTime", "0") );
+		} catch (NumberFormatException n) {
+			delay_time = 0;
+		}
+		
 		alertTone = prefs.getString("prefAlertSound", Settings.System.DEFAULT_RINGTONE_URI.toString());		
+		if (alertTone.equals(""))
+			alertTone = Settings.System.DEFAULT_RINGTONE_URI.toString();
 		
 		Uri uri = Uri.parse(alertTone);
 		ringtone = RingtoneManager.getRingtone(getBaseContext(), uri);
@@ -784,9 +799,9 @@ public class ChessClock extends Activity {
 		t_P2 = time * 60000;
 		
 		/** Set up the buttons */
-		 p1_button.setBackgroundColor(Color.LTGRAY);
-	     p2_button.setBackgroundColor(Color.LTGRAY);
-	     pause.setBackgroundColor(Color.LTGRAY);
+		p1_button.setBackgroundColor(Color.LTGRAY);
+	    p2_button.setBackgroundColor(Color.LTGRAY);
+	    pause.setBackgroundColor(Color.LTGRAY);
                
         /** Format and display the clocks */
         p1.setText(FormatTime(t_P1));

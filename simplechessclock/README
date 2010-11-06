@@ -32,6 +32,9 @@ you also need to provide the source (and license
 it under the GPL) and include the original copyright.
 
 === Changelog ===
+v1.1.1 (11-6-2010)
+*Addressed a crash on startup
+
 v1.1.0 (9-27-2010)
 *Added haptic feedback option
 *Cleaned up some more code
