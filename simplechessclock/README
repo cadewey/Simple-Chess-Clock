@@ -32,6 +32,11 @@ you also need to provide the source (and license
 it under the GPL) and include the original copyright.
 
 === Changelog ===
+v1.1.2 (11-6-2010)
+*Fixed another bug. Leaving an option blank should
+no longer cause a crash - it will use the default
+value instead.
+
 v1.1.1 (11-6-2010)
 *Addressed a crash on startup
 

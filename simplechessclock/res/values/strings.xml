@@ -6,13 +6,13 @@
 <string name="checkbox">CheckBox</string>
 
 <string-array name="delayTypes">
-<item>Nunca</item>
+<item>None</item>
 <item>Fischer</item>
 <item>Bronstein</item>
 </string-array>
 
 <string-array name="delayVals">
-<item>Nunca</item>
+<item>None</item>
 <item>Fischer</item>
 <item>Bronstein</item>
 </string-array>

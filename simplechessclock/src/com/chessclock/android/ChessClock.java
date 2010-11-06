@@ -35,6 +35,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -64,7 +65,7 @@ public class ChessClock extends Activity {
 	public static final String TAG = "INFO";
 	public static final String V_MAJOR = "1";
 	public static final String V_MINOR = "1";
-	public static final String V_MINI = "0";
+	public static final String V_MINI = "2";
 
 	/** Constants for the dialog windows */
 	private static final int SETTINGS = 0;
@@ -278,18 +279,44 @@ public class ChessClock extends Activity {
 		
 		/** Check for a new delay style */
 		String new_delay = prefs.getString("prefDelay","None");
+		if (new_delay.equals("")) {
+			new_delay = "None";
+			Editor e = prefs.edit();
+			e.putString("prefDelay", "None");
+			e.commit();
+		}
+		
 		if ( new_delay != delay ) {
 			SetUpGame();
 		}
 		
 		/** Check for a new game time setting */
-		int new_time = Integer.parseInt( prefs.getString("prefTime", "10") );
+		int new_time;
+		
+		try {
+			new_time = Integer.parseInt( prefs.getString("prefTime", "10") );
+		} catch (Exception ex) {
+			new_time = 10;
+			Editor e = prefs.edit();
+			e.putString("prefTime", "10");
+			e.commit();
+		}
+		
 		if ( new_time != time ) {
 			SetUpGame();
 		}
 		
 		/** Check for a new delay time */
-		int new_delay_time = Integer.parseInt( prefs.getString("prefDelayTime", "0" ) );
+		int new_delay_time;
+		try {
+			new_delay_time = Integer.parseInt( prefs.getString("prefDelayTime", "0" ) );
+		} catch (Exception ex) {
+			new_delay_time = 0;
+			Editor e = prefs.edit();
+			e.putString("prefDelayTime", "0");
+			e.commit();
+		}
+		
 		if ( new_delay_time != delay_time ) {
 			SetUpGame();
 		}
@@ -772,24 +799,38 @@ public class ChessClock extends Activity {
         }
 	    
 		delay = prefs.getString("prefDelay","None");
-		if ( delay.equals(""))
+		if ( delay.equals("")) {
 			delay = "None";
+			Editor e = prefs.edit();
+			e.putString("prefDelay", "None");
+			e.commit();
+		}
 		
 		try {
 			time = Integer.parseInt( prefs.getString("prefTime", "10") );	
-		} catch (NumberFormatException n) {
+		} catch (Exception ex) {
 			time = 10;
+			Editor e = prefs.edit();
+			e.putString("prefTime", "10");
+			e.commit();
 		}
 		
 		try {
 			delay_time = Integer.parseInt( prefs.getString("prefDelayTime", "0") );
-		} catch (NumberFormatException n) {
+		} catch (Exception ex) {
 			delay_time = 0;
+			Editor e = prefs.edit();
+			e.putString("prefDelayTime", "0");
+			e.commit();
 		}
 		
 		alertTone = prefs.getString("prefAlertSound", Settings.System.DEFAULT_RINGTONE_URI.toString());		
-		if (alertTone.equals(""))
+		if (alertTone.equals("")) {
 			alertTone = Settings.System.DEFAULT_RINGTONE_URI.toString();
+			Editor e = prefs.edit();
+			e.putString("prefAlertSound", alertTone);
+			e.commit();
+		}
 		
 		Uri uri = Uri.parse(alertTone);
 		ringtone = RingtoneManager.getRingtone(getBaseContext(), uri);
