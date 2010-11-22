@@ -65,7 +65,7 @@ public class ChessClock extends Activity {
 	public static final String TAG = "INFO";
 	public static final String V_MAJOR = "1";
 	public static final String V_MINOR = "1";
-	public static final String V_MINI = "2";
+	public static final String V_MINI = "3";
 
 	/** Constants for the dialog windows */
 	private static final int SETTINGS = 0;
@@ -131,8 +131,10 @@ public class ChessClock extends Activity {
     		wl.release();
     	}
     	
-    	if ( ringtone.isPlaying() ) {
-    		ringtone.stop();
+    	if (null != ringtone) {
+	    	if ( ringtone.isPlaying() ) {
+	    		ringtone.stop();
+	    	}
     	}
     	
     	PauseGame();
@@ -144,9 +146,11 @@ public class ChessClock extends Activity {
     	/** Get the wakelock */
 	    wl.acquire();
 	    
-	    if ( ringtone.isPlaying() ) {
-    		ringtone.stop();
-    	}
+	    if (null != ringtone) {
+		    if ( ringtone.isPlaying() ) {
+	    		ringtone.stop();
+	    	}
+	    }
 	    super.onResume();
     }
     
@@ -156,8 +160,10 @@ public class ChessClock extends Activity {
     		wl.release();
     	}
 
-    	if ( ringtone.isPlaying() ) {
-    		ringtone.stop();
+    	if (null != ringtone) {
+	    	if ( ringtone.isPlaying() ) {
+	    		ringtone.stop();
+	    	}
     	}
     	super.onDestroy();
     }
@@ -185,8 +191,10 @@ public class ChessClock extends Activity {
     
     public boolean onPrepareOptionsMenu(Menu menu) {
     	prefmenu = true;
-    	if ( ringtone.isPlaying() ) {
-    		ringtone.stop();
+    	if ( null != ringtone ) {
+	    	if ( ringtone.isPlaying() ) {
+	    		ringtone.stop();
+	    	}
     	}
     	PauseGame();
     	return true;
@@ -481,7 +489,9 @@ public class ChessClock extends Activity {
 				
 				Uri uri = Uri.parse(alertTone);
 				ringtone = RingtoneManager.getRingtone(getBaseContext(), uri);
-				ringtone.play();
+				if ( null != ringtone ) {
+					ringtone.play();
+				}
 				
 				/** Blink the clock display */
 				myHandler.removeCallbacks(mUpdateTimeTask2);
@@ -639,8 +649,9 @@ public class ChessClock extends Activity {
 				
 				Uri uri = Uri.parse(alertTone);
 				ringtone = RingtoneManager.getRingtone(getBaseContext(), uri);
-				ringtone.play();
-				
+				if ( null != ringtone ) {
+					ringtone.play();
+				}
 				/** Blink the clock display */
 				myHandler.removeCallbacks(mUpdateTimeTask2);
 				myHandler.postDelayed(Blink2, 500);
