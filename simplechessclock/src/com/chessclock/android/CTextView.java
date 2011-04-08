@@ -7,27 +7,17 @@
  * 
  * Author: Carter Dewey
  * 
- * Code was seen on StackOverflow, originally posted by Ravedave.
+ * OnDraw() code was seen on StackOverflow, originally posted by Ravedave:
+ *     http://stackoverflow.com/users/92212/ravedave
  * 
  * Original thread: http://stackoverflow.com/questions/2558257/
  * 		how-can-you-display-upside-down-text-with-a-textview-in-android
  * 
  *************************************************************************
  *
- *   This file is part of Simple Chess Clock (SCC).
- *    
- *   SCC is free software: you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation, either version 3 of the License, or
- *   (at your option) any later version.
- *
- *   SCC is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU General Public License for more details.
- *
- *   You should have received a copy of the GNU General Public License
- *   along with SCC.  If not, see <http://www.gnu.org/licenses/>.
+ * This code is licensed under the Creative Commons Attribution Share-Alike
+ * 3.0 Unported License. The text of the license may be viewed at:
+ *     http://creativecommons.org/licenses/by-sa/3.0/
  *
  *************************************************************************/
 
